@@ -3,7 +3,7 @@
 > **A unique 2048-style puzzle with move returns. Merge tiles, return moves, reach 2048 on a 4x4 grid.**
 
 ![Game Screenshot](https://metodorf.com/training/images/doublequad.jpg)  
-*(Замените на реальный скриншот позже)*
+
 
 ## 🎮 How to Play
 - Start with 16 tiles of "2" on a 4x4 grid.
