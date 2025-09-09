@@ -19,15 +19,11 @@
 
 ## 🌍 Languages
 - [English](#) *(add links to language versions later)*
-- [Русский](#)
-- [Español](#)
-- [Français](#)
-- [Deutsch](#)
-- ... *(add more later)*
+- ... *(Will be added more later)*
 
 ## 👤 Created by
 **Oleg Akvan** (pseudonym of Oleg Khomyakov) — creator of [metodorf.com](https://metodorf.com)
-
+DoubleQuad™ — original game by Oleg Akvan. Any use of the name without permission is prohibited.
 © 2025 Oleg Akvan. All rights reserved.
 
 ---
