@@ -4,6 +4,9 @@
 
 ![Game Screenshot](https://metodorf.com/training/images/doublequad.jpg)  
 
+## 🎮 Play Now
+▶️ **[PLAY ONLINE NOW](https://olegakvan.github.io/doublequad/game/)**  
+*(Game under development — basic version available)*
 
 ## 🎮 How to Play
 - Start with 16 tiles of "2" on a 4x4 grid.
