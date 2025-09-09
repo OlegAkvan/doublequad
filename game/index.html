@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoubleQuad - logic game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #faf8ef;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #776e65;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #776e65;
+            margin-bottom: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .game-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .score-box, .moves-box, .max-tile-box {
+            background-color: #bbada0;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .max-tile-box {
+            background-color: #2575fc;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            background-color: #bbada0;
+            padding: 10px;
+            border-radius: 6px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #cdc1b4;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            font-weight: bold;
+            color: #776e65;
+        }
+        
+        .tile {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #eee4da;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            font-weight: bold;
+            transition: all 0.1s ease;
+        }
+        
+        .tile-2 { background-color: #eee4da; }
+        .tile-4 { background-color: #ede0c8; }
+        .tile-8 { background-color: #f2b179; color: #f9f6f2; }
+        .tile-16 { background-color: #f59563; color: #f9f6f2; }
+        .tile-32 { background-color: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background-color: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background-color: #edcf72; color: #f9f6f2; font-size: 30px; }
+        .tile-256 { background-color: #edcc61; color: #f9f6f2; font-size: 30px; }
+        .tile-512 { background-color: #edc850; color: #f9f6f2; font-size: 30px; }
+        .tile-1024 { background-color: #edc53f; color: #f9f6f2; font-size: 25px; }
+        .tile-2048 { background-color: #edc22e; color: #f9f6f2; font-size: 25px; }
+        
+        .selected {
+            box-shadow: 0 0 0 3px #ff7f7f inset;
+        }
+        
+        .message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .message-content {
+            background-color: #faf8ef;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .message button {
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        .message button:hover {
+            background-color: #9f8b77;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: #776e65;
+            font-size: 14px;
+        }
+        
+        .sound-control {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DoubleQuad</h1>
+    
+    <div class="description">
+Merge tiles to get 2048! You have 16 moves. 
+When merging, the move is returned. Select the tiles and click on the adjacent one.
+    </div>
+    
+    <div class="game-container">
+        <div class="header">
+            <div class="score-box">Score: <span id="score">0</span></div>
+            <div class="moves-box">Moves: <span id="moves">16</span>/16</div>
+            <div class="max-tile-box">Max: <span id="max-tile">2</span></div>
+        </div>
+        
+        <div class="grid" id="grid">
+            <!-- Ячейки будут созданы через JavaScript -->
+        </div>
+        
+        <div class="sound-control">
+            <label for="sound-toggle">Sound:</label>
+            <input type="checkbox" id="sound-toggle" checked>
+        </div>
+        
+        <div class="instructions">
+            Instructions: Click on a tile to select it, then click on an adjacent tile to swap or merge.
+        </div>
+    </div>
+    
+    <div class="message" id="message">
+        <div class="message-content">
+            <h2 id="message-text">Game Over!</h2>
+            <p>Your result: <span id="final-score">0</span></p>
+            <p>Maximum tile: <span id="final-max-tile">2</span></p>
+            <button id="restart-button">New Game</button>
+        </div>
+    </div>
+<div class="copyright" style="width: 100%;">&copy Oleg Akvan 09.09.2025</div>
+    <script>
+/**
+ * DoubleQuad — Original 16-Move Tile Puzzle Game
+ * 
+ * Created by Oleg Akvan (pseudonym of Oleg Khomyakov)
+ * © 2025 Oleg Akvan. All rights reserved.
+ * 
+ * Game design, logic, and final implementation by Oleg Akvan.
+ * Developed with assistance from DeepSeek AI for code generation and optimization.
+ * 
+ * Official repository: https://github.com/OlegAkvan/doublequad
+ * Personal projects: https://metodorf.ru
+ * 
+ * License: MIT — You may use, modify, and distribute this code,
+ *           but you MUST credit the original creator: Oleg Akvan.
+ */
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridSize = 4;
+            const initialMoves = 16;
+            let score = 0;
+            let movesLeft = initialMoves;
+            let maxTile = 2;
+            let selectedTile = null;
+            let grid = [];
+            let gameOver = false;
+            
+            const gridElement = document.getElementById('grid');
+            const scoreElement = document.getElementById('score');
+            const movesElement = document.getElementById('moves');
+            const maxTileElement = document.getElementById('max-tile');
+            const messageElement = document.getElementById('message');
+            const messageTextElement = document.getElementById('message-text');
+            const finalScoreElement = document.getElementById('final-score');
+            const finalMaxTileElement = document.getElementById('final-max-tile');
+            const restartButton = document.getElementById('restart-button');
+            const soundToggle = document.getElementById('sound-toggle');
+            
+            // Генератор звуков
+            class SoundGenerator {
+                constructor() {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                playTone(frequency, duration, type = 'sine', volume = 0.2) {
+                    if (!soundToggle.checked) return;
+                    
+                    const oscillator = this.audioContext.createOscillator();
+                    const gainNode = this.audioContext.createGain();
+                    
+                    oscillator.type = type;
+                    oscillator.frequency.value = frequency;
+                    gainNode.gain.value = volume;
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.audioContext.destination);
+                    
+                    oscillator.start();
+                    
+                    // Плавное затухание звука
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration / 1000);
+                    oscillator.stop(this.audioContext.currentTime + duration / 1000);
+                }
+                
+                playMoveSound() {
+                    // Короткий звук перемещения
+                    this.playTone(300, 100, 'sine', 0.1);
+                }
+                
+                playMergeSound() {
+                    // Приятный звук объединения
+                    this.playTone(523.25, 200, 'sine', 0.2); // Нота C5
+                    setTimeout(() => {
+                        this.playTone(659.25, 200, 'sine', 0.2); // Нота E5
+                    }, 100);
+                }
+                
+                playWinSound() {
+                    // Победный звук
+                    this.playTone(523.25, 300, 'sine', 0.3); // Нота C5
+                    setTimeout(() => {
+                        this.playTone(659.25, 300, 'sine', 0.3); // Нота E5
+                        setTimeout(() => {
+                            this.playTone(783.99, 500, 'sine', 0.3); // Нота G5
+                        }, 200);
+                    }, 200);
+                }
+                
+                playGameOverSound() {
+                    // Звук окончания игры
+                    this.playTone(392, 500, 'sawtooth', 0.2); // Нота G4
+                    setTimeout(() => {
+                        this.playTone(349.23, 700, 'sawtooth', 0.2); // Нота F4
+                    }, 300);
+                }
+            }
+            
+            const soundGenerator = new SoundGenerator();
+            
+            // Инициализация игрового поля
+            function initializeGame() {
+                // Очищаем поле
+                gridElement.innerHTML = '';
+                grid = [];
+                score = 0;
+                movesLeft = initialMoves;
+                maxTile = 2;
+                selectedTile = null;
+                gameOver = false;
+                
+                // Создаем ячейки
+                for (let i = 0; i < gridSize; i++) {
+                    grid[i] = [];
+                    for (let j = 0; j < gridSize; j++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'cell';
+                        cell.dataset.row = i;
+                        cell.dataset.col = j;
+                        gridElement.appendChild(cell);
+                        grid[i][j] = 2; // Все клетки начинаются с 2
+                    }
+                }
+                
+                // Отрисовываем начальные плитки
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        renderTile(i, j, grid[i][j]);
+                    }
+                }
+                
+                updateUI();
+            }
+            
+            // Отрисовка плитки
+            function renderTile(row, col, value) {
+                // Удаляем существующую плитку
+                const existingTile = document.querySelector(`.tile[data-row="${row}"][data-col="${col}"]`);
+                if (existingTile) {
+                    existingTile.remove();
+                }
+                
+                // Если значение не 0, создаем новую плитку
+                if (value !== 0) {
+                    const tile = document.createElement('div');
+                    tile.className = `tile tile-${value}`;
+                    tile.dataset.row = row;
+                    tile.dataset.col = col;
+                    tile.textContent = value;
+                    tile.style.top = `${10 + row * (100 + 10)}px`;
+                    tile.style.left = `${10 + col * (100 + 10)}px`;
+                    
+                    tile.addEventListener('click', () => {
+                        if (gameOver) return;
+                        
+                        // Если нет выделенной плитки, выделяем текущую
+                        if (!selectedTile) {
+                            selectedTile = {row, col, value};
+                            tile.classList.add('selected');
+                        } 
+                        // Если кликнули на уже выделенную плитку, снимаем выделение
+                        else if (selectedTile.row === row && selectedTile.col === col) {
+                            selectedTile = null;
+                            tile.classList.remove('selected');
+                        }
+                        // Если кликнули на другую плитку, пытаемся совершить ход
+                        else {
+                            // Проверяем, являются ли плитки соседями
+                            const isNeighbor = 
+                                (Math.abs(selectedTile.row - row) === 1 && selectedTile.col === col) ||
+                                (Math.abs(selectedTile.col - col) === 1 && selectedTile.row === row);
+                            
+                            if (isNeighbor) {
+                                makeMove(selectedTile.row, selectedTile.col, row, col);
+                            }
+                            
+                            // Снимаем выделение
+                            document.querySelector('.tile.selected')?.classList.remove('selected');
+                            selectedTile = null;
+                        }
+                    });
+                    
+                    gridElement.appendChild(tile);
+                }
+            }
+            
+            // Добавление плитки "2" на пустую клетку
+            function addRandomTile() {
+                const emptyCells = [];
+                
+                // Находим все пустые ячейки
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        if (grid[i][j] === 0) {
+                            emptyCells.push({row: i, col: j});
+                        }
+                    }
+                }
+                
+                // Если есть пустые ячейки, добавляем плитку "2"
+                if (emptyCells.length > 0) {
+                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    grid[randomCell.row][randomCell.col] = 2;
+                    renderTile(randomCell.row, randomCell.col, 2);
+                }
+            }
+            
+            // Совершение хода
+            function makeMove(fromRow, fromCol, toRow, toCol) {
+                const fromValue = grid[fromRow][fromCol];
+                const toValue = grid[toRow][toCol];
+                
+                // Всегда тратим ход
+                movesLeft--;
+                soundGenerator.playMoveSound();
+                
+                // Если значения совпадают - объединяем
+                if (fromValue === toValue) {
+                    const newValue = fromValue * 2;
+                    grid[toRow][toCol] = newValue;
+                    grid[fromRow][fromCol] = 0;
+                    
+                    // Добавляем очки
+                    score += newValue;
+                    
+                    // Обновляем максимальную плитку
+                    if (newValue > maxTile) {
+                        maxTile = newValue;
+                    }
+                    
+                    // Возвращаем ход при объединении
+                    movesLeft++;
+                    
+                    // Воспроизводим звук объединения
+                    soundGenerator.playMergeSound();
+                    
+                    // Добавляем плитку "2" на освободившееся место
+                    addRandomTile();
+                    
+                    // Проверяем победу
+                    if (newValue === 2048) {
+                        soundGenerator.playWinSound();
+                        showMessage("Поздравляем! Вы достигли 2048!", true);
+                    }
+                } 
+                // Если не совпадают - меняем местами
+                else {
+                    grid[toRow][toCol] = fromValue;
+                    grid[fromRow][fromCol] = toValue;
+                }
+                
+                // Обновляем отображение
+                renderTile(fromRow, fromCol, grid[fromRow][fromCol]);
+                renderTile(toRow, toCol, grid[toRow][toCol]);
+                
+                updateUI();
+                
+                // Проверяем окончание игры
+                if (movesLeft <= 0) {
+                    soundGenerator.playGameOverSound();
+                    showMessage("Game over! No more moves!", false);
+                }
+            }
+            
+            // Обновление интерфейса
+            function updateUI() {
+                scoreElement.textContent = score;
+                movesElement.textContent = movesLeft;
+                maxTileElement.textContent = maxTile;
+            }
+            
+            // Показать сообщение
+            function showMessage(text, isWin) {
+                gameOver = true;
+                messageTextElement.textContent = text;
+                messageTextElement.style.color = isWin ? '#5dac3e' : '#c82a2a';
+                finalScoreElement.textContent = score;
+                finalMaxTileElement.textContent = maxTile;
+                messageElement.style.display = 'flex';
+            }
+            
+            // Обработчик кнопки перезапуска
+            restartButton.addEventListener('click', () => {
+                messageElement.style.display = 'none';
+                initializeGame();
+            });
+            
+            // Запуск игры
+            initializeGame();
+        });
+    </script>
+</body>
+</html>
